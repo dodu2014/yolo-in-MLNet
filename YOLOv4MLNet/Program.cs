@@ -14,7 +14,7 @@ namespace YOLOv4MLNet
     {
         // model is available here:
         // https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/yolov4
-        const string modelPath = @"D:\MachineLearning\Models\yolo_models\yolov4.onnx";
+        const string modelPath = @"Assets\models\yolov4.onnx";
 
         const string imageFolder = @"Assets\Images";
 
@@ -51,7 +51,7 @@ namespace YOLOv4MLNet
                         "Identity_1:0",
                         "Identity_2:0"
                     },
-                    modelFile: modelPath, recursionLimit: 100));
+                    modelFile: Path.Combine(modelPath), recursionLimit: 100));
 
             // Fit on empty list to obtain input data schema
             var model = pipeline.Fit(mlContext.Data.LoadFromEnumerable(new List<YoloV4BitmapData>()));
