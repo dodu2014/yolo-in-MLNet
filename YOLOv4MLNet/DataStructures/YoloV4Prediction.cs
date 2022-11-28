@@ -29,23 +29,9 @@ namespace YOLOv4MLNet.DataStructures
         /// <summary>
         /// Identity
         /// </summary>
-        [VectorType(1, 3, 80, 80, 85)]
-        [ColumnName("output")]
+        [VectorType(1, 25200, 85)]
+        [ColumnName("output0")]
         public float[] Output { get; set; }
-
-        /// <summary>
-        /// Identity1
-        /// </summary>
-        [VectorType(1, 3, 40, 40, 85)]
-        [ColumnName("1313")]
-        public float[] Output1313 { get; set; }
-
-        /// <summary>
-        /// Identity2
-        /// </summary>
-        [VectorType(1, 3, 20, 20, 85)]
-        [ColumnName("1333")]
-        public float[] Output1333 { get; set; }
 
         [ColumnName("width")]
         public float ImageWidth { get; set; }
@@ -57,7 +43,7 @@ namespace YOLOv4MLNet.DataStructures
         {
             List<float[]> postProcesssedResults = new List<float[]>();
             int classesCount = categories.Length;
-            var results = new[] { Output, Output1313, Output1333 };
+            var results = new[] { Output };
 
             for (int i = 0; i < results.Length; i++)
             {

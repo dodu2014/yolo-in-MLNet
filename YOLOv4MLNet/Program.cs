@@ -12,7 +12,7 @@ namespace YOLOv4MLNet
     {
         // model is available here:
         // https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/yolov4
-        const string modelPath = @"D:\MachineLearning\Models\yolo_models\yolov5l.onnx";
+        const string modelPath = @"Assets\models\yolov5l.onnx";
 
         const string imageFolder = @"Assets\Images";
 
@@ -35,9 +35,7 @@ namespace YOLOv4MLNet
                     shapeDictionary: new Dictionary<string, int[]>()
                     {
                         { "images", new[] { 1, 3, 640, 640 } },
-                        { "output", new[] { 1, 3, 80, 80, 85 } },
-                        { "1313", new[] { 1, 3, 40, 40, 85 } },
-                        { "1333", new[] { 1, 3, 20, 20, 85 } },
+                        { "output0", new[] {  1,25200,85 } },
                     },
                     inputColumnNames: new[]
                     {
@@ -45,11 +43,9 @@ namespace YOLOv4MLNet
                     },
                     outputColumnNames: new[]
                     {
-                        "output",
-                        "1313",
-                        "1333"
+                        "output0",
                     },
-                    modelFile: modelPath));
+                    modelFile: Path.Combine(modelPath)));
 
             // Fit on empty list to obtain input data schema
             var model = pipeline.Fit(mlContext.Data.LoadFromEnumerable(new List<YoloV4BitmapData>()));
