@@ -12,7 +12,7 @@ namespace YOLOv4MLNet.DataStructures
         /// Identity
         /// </summary>
         [VectorType(1, 25200, 85)]
-        [ColumnName("output")]
+        [ColumnName("output0")]
         public float[] Output { get; set; }
 
         [ColumnName("width")]

@@ -12,7 +12,7 @@ namespace YOLOv4MLNet
     {
         // model is available here:
         // https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/yolov4
-        const string modelPath = @"Assets\Models\yolov5s_full_layer.onnx";
+        const string modelPath = @"Assets\Models\yolov5l.onnx";
 
         const string imageFolder = @"Assets\Images";
 
@@ -35,7 +35,7 @@ namespace YOLOv4MLNet
                     shapeDictionary: new Dictionary<string, int[]>()
                     {
                         { "images", new[] { 1, 3, 640, 640 } },
-                        { "output", new[] { 1, 25200, 85 } },
+                        { "output0", new[] { 1, 25200, 85 } },
                     },
                     inputColumnNames: new[]
                     {
@@ -43,7 +43,7 @@ namespace YOLOv4MLNet
                     },
                     outputColumnNames: new[]
                     {
-                        "output"
+                        "output0"
                     },
                     modelFile: modelPath));
 
