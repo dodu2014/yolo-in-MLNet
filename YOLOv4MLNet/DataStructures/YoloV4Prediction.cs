@@ -1,4 +1,4 @@
-using Microsoft.ML.Data;
+﻿using Microsoft.ML.Data;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,8 +11,8 @@ namespace YOLOv4MLNet.DataStructures
         /// <summary>
         /// Identity
         /// </summary>
-        [VectorType(1, 25200, 85)]
-        [ColumnName("output")]
+        [VectorType(1, 25200, 8)]
+        [ColumnName("output0")]
         public float[] Output { get; set; }
 
         [ColumnName("width")]

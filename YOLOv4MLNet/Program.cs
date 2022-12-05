@@ -1,4 +1,4 @@
-using Microsoft.ML;
+﻿using Microsoft.ML;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,13 +14,14 @@ namespace YOLOv4MLNet
     {
         // model is available here:
         // https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/yolov4
-        const string modelPath = @"Assets\Models\yolov5s_full_layer.onnx";
+        const string modelPath = @"Assets\Models\mouse.onnx";
 
         const string imageFolder = @"Assets\Images";
 
         const string imageOutputFolder = @"Assets\Output";
 
-        static readonly string[] classesNames = new string[] { "person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train", "truck", "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella", "handbag", "tie", "suitcase", "frisbee", "skis", "snowboard", "sports ball", "kite", "baseball bat", "baseball glove", "skateboard", "surfboard", "tennis racket", "bottle", "wine glass", "cup", "fork", "knife", "spoon", "bowl", "banana", "apple", "sandwich", "orange", "broccoli", "carrot", "hot dog", "pizza", "donut", "cake", "chair", "sofa", "pottedplant", "bed", "diningtable", "toilet", "tvmonitor", "laptop", "mouse", "remote", "keyboard", "cell phone", "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear", "hair drier", "toothbrush" };
+        //static readonly string[] classesNames = new string[] { "person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train", "truck", "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella", "handbag", "tie", "suitcase", "frisbee", "skis", "snowboard", "sports ball", "kite", "baseball bat", "baseball glove", "skateboard", "surfboard", "tennis racket", "bottle", "wine glass", "cup", "fork", "knife", "spoon", "bowl", "banana", "apple", "sandwich", "orange", "broccoli", "carrot", "hot dog", "pizza", "donut", "cake", "chair", "sofa", "pottedplant", "bed", "diningtable", "toilet", "tvmonitor", "laptop", "mouse", "remote", "keyboard", "cell phone", "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear", "hair drier", "toothbrush" };
+        static readonly string[] classesNames = new string[] { "cat", "dog" };
 
         static void Main()
         {
@@ -34,19 +35,19 @@ namespace YOLOv4MLNet
             var pipeline = mlContext.Transforms.ResizeImages(inputColumnName: "bitmap", outputColumnName: "images", imageWidth: 640, imageHeight: 640, resizing: ResizingKind.Fill)
                 .Append(mlContext.Transforms.ExtractPixels(outputColumnName: "images", scaleImage: 1f / 255f, interleavePixelColors: false))
                 .Append(mlContext.Transforms.ApplyOnnxModel(
-                    //shapeDictionary: new Dictionary<string, int[]>()
-                    //{
-                    //    { "images", new[] { 1, 3, 640, 640 } },
-                    //    { "output", new[] { 1, 25200, 85 } },
-                    //},
-                    //inputColumnNames: new[]
-                    //{
-                    //    "images"
-                    //},
-                    //outputColumnNames: new[]
-                    //{
-                    //    "output"
-                    //},
+                    shapeDictionary: new Dictionary<string, int[]>()
+                    {
+                       { "images", new[] { 1, 3, 640, 640 } },
+                       { "output0", new[] { 1, 25200, 8 } },
+                    },
+                    inputColumnNames: new[]
+                    {
+                       "images"
+                    },
+                    outputColumnNames: new[]
+                    {
+                       "output0"
+                    },
                     modelFile: modelPath));
 
             // 适应空列表以获取输入数据架构
@@ -58,7 +59,8 @@ namespace YOLOv4MLNet
             // 保存模型
             //mlContext.Model.Save(model, predictionEngine.OutputSchema, Path.ChangeExtension(modelPath, "zip"));
 
-            foreach (string imageName in new string[] { "kite.jpg", "kite_416.jpg", "dog_cat.jpg", "cars road.jpg", "ski.jpg", "ski2.jpg" })
+            // foreach (string imageName in new string[] { "kite.jpg", "kite_416.jpg", "dog_cat.jpg", "cars road.jpg", "ski.jpg", "ski2.jpg" })
+            foreach (string imageName in new string[] { "微信图片_20221205163715.jpg", "微信图片_20221205163743.jpg", "微信图片_20221205163747.jpg", "微信图片_20221205163751.jpg", "微信图片_20221205163758.jpg" })
             {
                 Console.WriteLine($"推理 {imageName} ...");
                 var ss = Stopwatch.StartNew();
