@@ -1,4 +1,4 @@
-﻿using Microsoft.ML.Data;
+using Microsoft.ML.Data;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -24,10 +24,10 @@ namespace YOLOv4MLNet.DataStructures
         public IReadOnlyList<YoloV5Result> GetResults(string[] categories, float scoreThres = 0.5f, float iouThres = 0.5f)
         {
 
-            // Probabilities + Characteristics
+            // 概率+特征
             int characteristics = categories.Length + 5;
 
-            // Needed info
+            // 需要的信息
             float modelWidth = 640.0F;
             float modelHeight = 640.0F;
             float xGain = modelWidth / ImageWidth;
@@ -36,30 +36,30 @@ namespace YOLOv4MLNet.DataStructures
 
             List<float[]> postProcessedResults = new List<float[]>();
 
-            // For every cell of the image, format for NMS
+            // 对于图像的每个单元，以 NMS 格式化
             for (int i = 0; i < 25200; i++)
             {
-                // Get offset in float array
+                // 获取浮点数组中的偏移量
                 int offset = characteristics * i;
 
-                // Get a prediction cell
+                // 获取预测单元格
                 var predCell = results.Skip(offset).Take(characteristics).ToList();
 
-                // Filter some boxes
+                // 过滤
                 var objConf = predCell[4];
                 if (objConf <= scoreThres) continue;
 
-                // Get corners in original shape
+                // 获得原始形状的顶点
                 var x1 = (predCell[0] - predCell[2] / 2) / xGain; //top left x
                 var y1 = (predCell[1] - predCell[3] / 2) / yGain; //top left y
                 var x2 = (predCell[0] + predCell[2] / 2) / xGain; //bottom right x
                 var y2 = (predCell[1] + predCell[3] / 2) / yGain; //bottom right y
 
-                // Get real class scores
+                // 获取真实的分类分数
                 var classProbs = predCell.Skip(5).Take(categories.Length).ToList();
                 var scores = classProbs.Select(p => p * objConf).ToList();
 
-                // Get best class and index
+                // 获取最佳分类索引
                 float maxConf = scores.Max();
                 float maxClass = scores.ToList().IndexOf(maxConf);
 
@@ -71,6 +71,13 @@ namespace YOLOv4MLNet.DataStructures
             return resultsNMS;
         }
 
+        /// <summary>
+        /// 应用 NMS 格式化
+        /// </summary>
+        /// <param name="postProcessedResults"></param>
+        /// <param name="categories"></param>
+        /// <param name="iouThres"></param>
+        /// <returns></returns>
         private List<YoloV5Result> ApplyNMS(List<float[]> postProcessedResults, string[] categories, float iouThres = 0.5f)
         {
             postProcessedResults = postProcessedResults.OrderByDescending(x => x[4]).ToList(); // sort by confidence
@@ -108,8 +115,8 @@ namespace YOLOv4MLNet.DataStructures
         }
 
         /// <summary>
-        /// Return intersection-over-union (Jaccard index) of boxes.
-        /// <para>Both sets of boxes are expected to be in (x1, y1, x2, y2) format.</para>
+        /// 返回框的并集（Jaccard索引）上的交叉点。
+        /// <para>这两组框都应为（x1，y1，x2，y2）格式。</para>
         /// </summary>
         private static float BoxIoU(float[] boxes1, float[] boxes2)
         {

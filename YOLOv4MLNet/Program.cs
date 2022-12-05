@@ -1,5 +1,7 @@
-﻿using Microsoft.ML;
+using Microsoft.ML;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using YOLOv4MLNet.DataStructures;
@@ -23,7 +25,7 @@ namespace YOLOv4MLNet
         static void Main()
         {
             Directory.CreateDirectory(imageOutputFolder);
-            MLContext mlContext = new MLContext();
+            MLContext mlContext = new();
 
             // model is available here:
             // https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/yolov4
@@ -32,59 +34,62 @@ namespace YOLOv4MLNet
             var pipeline = mlContext.Transforms.ResizeImages(inputColumnName: "bitmap", outputColumnName: "images", imageWidth: 640, imageHeight: 640, resizing: ResizingKind.Fill)
                 .Append(mlContext.Transforms.ExtractPixels(outputColumnName: "images", scaleImage: 1f / 255f, interleavePixelColors: false))
                 .Append(mlContext.Transforms.ApplyOnnxModel(
-                    shapeDictionary: new Dictionary<string, int[]>()
-                    {
-                        { "images", new[] { 1, 3, 640, 640 } },
-                        { "output", new[] { 1, 25200, 85 } },
-                    },
-                    inputColumnNames: new[]
-                    {
-                        "images"
-                    },
-                    outputColumnNames: new[]
-                    {
-                        "output"
-                    },
+                    //shapeDictionary: new Dictionary<string, int[]>()
+                    //{
+                    //    { "images", new[] { 1, 3, 640, 640 } },
+                    //    { "output", new[] { 1, 25200, 85 } },
+                    //},
+                    //inputColumnNames: new[]
+                    //{
+                    //    "images"
+                    //},
+                    //outputColumnNames: new[]
+                    //{
+                    //    "output"
+                    //},
                     modelFile: modelPath));
 
-            // Fit on empty list to obtain input data schema
+            // 适应空列表以获取输入数据架构
             var model = pipeline.Fit(mlContext.Data.LoadFromEnumerable(new List<YoloV4BitmapData>()));
 
-            // Create prediction engine
+            // 创建预测引擎
             var predictionEngine = mlContext.Model.CreatePredictionEngine<YoloV4BitmapData, YoloV4Prediction>(model);
 
-            // save model
+            // 保存模型
             //mlContext.Model.Save(model, predictionEngine.OutputSchema, Path.ChangeExtension(modelPath, "zip"));
 
             foreach (string imageName in new string[] { "kite.jpg", "kite_416.jpg", "dog_cat.jpg", "cars road.jpg", "ski.jpg", "ski2.jpg" })
             {
+                Console.WriteLine($"推理 {imageName} ...");
+                var ss = Stopwatch.StartNew();
+                ss.Start();
                 using (var bitmap = new Bitmap(Image.FromFile(Path.Combine(imageFolder, imageName))))
                 {
-                    // predict
+                    // 预测 推理
                     var predict = predictionEngine.Predict(new YoloV4BitmapData() { Image = bitmap });
                     var results = predict.GetResults(classesNames, 0.3f, 0.7f);
 
-                    using (var g = Graphics.FromImage(bitmap))
+                    using var g = Graphics.FromImage(bitmap);
+                    foreach (var res in results)
                     {
-                        foreach (var res in results)
+                        // 绘制预测结果
+                        var x1 = res.BBox[0];
+                        var y1 = res.BBox[1];
+                        var x2 = res.BBox[2];
+                        var y2 = res.BBox[3];
+                        g.DrawRectangle(Pens.Red, x1, y1, x2 - x1, y2 - y1);
+                        using (var brushes = new SolidBrush(Color.FromArgb(50, Color.Red)))
                         {
-                            // draw predictions
-                            var x1 = res.BBox[0];
-                            var y1 = res.BBox[1];
-                            var x2 = res.BBox[2];
-                            var y2 = res.BBox[3];
-                            g.DrawRectangle(Pens.Red, x1, y1, x2 - x1, y2 - y1);
-                            using (var brushes = new SolidBrush(Color.FromArgb(50, Color.Red)))
-                            {
-                                g.FillRectangle(brushes, x1, y1, x2 - x1, y2 - y1);
-                            }
-
-                            g.DrawString(res.Label + " " + res.Confidence.ToString("0.00"),
-                                         new Font("Arial", 12), Brushes.Blue, new PointF(x1, y1));
+                            g.FillRectangle(brushes, x1, y1, x2 - x1, y2 - y1);
                         }
-                        bitmap.Save(Path.Combine(imageOutputFolder, Path.ChangeExtension(imageName, "_processed" + Path.GetExtension(imageName))));
+
+                        g.DrawString(res.Label + " " + res.Confidence.ToString("0.00"), new Font("Arial", 12), Brushes.Blue, new PointF(x1, y1));
                     }
+                    bitmap.Save(Path.Combine(imageOutputFolder, Path.ChangeExtension(imageName, "_processed" + Path.GetExtension(imageName))));
                 }
+                ss.Stop();
+                Console.WriteLine($"耗时：{ss.ElapsedMilliseconds} ms.");
+
             }
         }
     }
