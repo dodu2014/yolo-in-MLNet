@@ -21,7 +21,7 @@ namespace YOLOv4MLNet
         const string imageOutputFolder = @"Assets\Output";
 
         //static readonly string[] classesNames = new string[] { "person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train", "truck", "boat", "traffic light", "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella", "handbag", "tie", "suitcase", "frisbee", "skis", "snowboard", "sports ball", "kite", "baseball bat", "baseball glove", "skateboard", "surfboard", "tennis racket", "bottle", "wine glass", "cup", "fork", "knife", "spoon", "bowl", "banana", "apple", "sandwich", "orange", "broccoli", "carrot", "hot dog", "pizza", "donut", "cake", "chair", "sofa", "pottedplant", "bed", "diningtable", "toilet", "tvmonitor", "laptop", "mouse", "remote", "keyboard", "cell phone", "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear", "hair drier", "toothbrush" };
-        static readonly string[] classesNames = new string[] { "cat", "dog" };
+        static readonly string[] classesNames = new string[] { "cat", "dog", "mouse" };
 
         static void Main()
         {
@@ -35,20 +35,22 @@ namespace YOLOv4MLNet
             var pipeline = mlContext.Transforms.ResizeImages(inputColumnName: "bitmap", outputColumnName: "images", imageWidth: 640, imageHeight: 640, resizing: ResizingKind.Fill)
                 .Append(mlContext.Transforms.ExtractPixels(outputColumnName: "images", scaleImage: 1f / 255f, interleavePixelColors: false))
                 .Append(mlContext.Transforms.ApplyOnnxModel(
-                    shapeDictionary: new Dictionary<string, int[]>()
-                    {
-                       { "images", new[] { 1, 3, 640, 640 } },
-                       { "output0", new[] { 1, 25200, 8 } },
-                    },
-                    inputColumnNames: new[]
-                    {
-                       "images"
-                    },
-                    outputColumnNames: new[]
-                    {
-                       "output0"
-                    },
-                    modelFile: modelPath));
+                    //shapeDictionary: new Dictionary<string, int[]>()
+                    //{
+                    //   { "images", new[] { 1, 3, 640, 640 } },
+                    //   { "output0", new[] { 1, 25200, 8 } },
+                    //},
+                    //inputColumnNames: new[]
+                    //{
+                    //   "images"
+                    //},
+                    //outputColumnNames: new[]
+                    //{
+                    //   "output0"
+                    //},
+                    modelFile: modelPath
+                )
+            );
 
             // 适应空列表以获取输入数据架构
             var model = pipeline.Fit(mlContext.Data.LoadFromEnumerable(new List<YoloV4BitmapData>()));
